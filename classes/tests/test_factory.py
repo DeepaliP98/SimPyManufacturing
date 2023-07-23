@@ -1,7 +1,7 @@
 import unittest
 import json
 
-from classes.classes import Factory, Product, Activity
+from classes.classes import Factory, Product, Activity, Constraint
 from classes.distributions import NormalDistribution, ExponentialDistribution, PoissonDistribution
 
 
@@ -15,6 +15,8 @@ class TestFactory(unittest.TestCase):
         self.assertEqual(True, isinstance(factory.PRODUCTS[0], Product))
         self.assertEqual(True, isinstance(factory.PRODUCTS[0].ACTIVITIES[0], Activity))
         self.assertEqual(len(factory.PRODUCTS[0].TEMPORAL_RELATIONS.keys()), 13)
+        self.assertEqual(factory.PRODUCTS[0].ACTIVITIES[0].constraints[0].activity_id, 0)
+        self.assertEqual(factory.PRODUCTS[0].ACTIVITIES[0].constraints[0].product_id, 2)
         fp.close()
 
     def test_distribution_mapping(self):

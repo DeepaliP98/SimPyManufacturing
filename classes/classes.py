@@ -5,18 +5,27 @@ import numpy as np
 from classes.distributions import Distribution, get_distribution
 
 
+class Constraint:
+    def __init__(self, activity_id=None, product_id=None):
+        self.activity_id = activity_id
+        self.product_id = product_id
+
+
 class Activity:
-    def __init__(self, ID, PROCESSING_TIME, PRODUCT, PRODUCT_ID, NEEDS, DISTRIBUTION=None, SEQUENCE_ID=int()):
+    def __init__(self, ID, PROCESSING_TIME, PRODUCT, PRODUCT_ID, NEEDS, DISTRIBUTION=None, SEQUENCE_ID=int(),
+                 constraints=[]):
         self.ID = ID
         self.PRODUCT = PRODUCT
         self.PRODUCT_ID = PRODUCT_ID
         self.PROCESSING_TIME = PROCESSING_TIME
         self.NEEDS = NEEDS
         self.SEQUENCE_ID = SEQUENCE_ID
+        self._set_constraints(constraints)
         self.set_distribution(DISTRIBUTION)
 
     def sample_processing_time(self):
-        return self.DISTRIBUTION.sample()
+        sample = self.DISTRIBUTION.sample()
+        return sample if sample >= 0 else 0
 
     def sample_and_set_scenario(self):
         sample = self.sample_processing_time()
@@ -31,6 +40,17 @@ class Activity:
             self.DISTRIBUTION = get_distribution(distribution["TYPE"], distribution["ARGS"])
         else:
             return TypeError("Illegal distribution type: ", type(distribution))
+
+    def _set_constraints(self, constraints):
+        constraints_obj = []
+        for constr in constraints:
+            if isinstance(constr, Constraint):
+                constraints_obj.append(constr)
+            elif isinstance(constr, dict):
+                constraints_obj.append(Constraint(**constr))
+            else:
+                return TypeError("Illegal distribution type: ", type(constr))
+        self.constraints = constraints_obj
 
 
 class Product:
